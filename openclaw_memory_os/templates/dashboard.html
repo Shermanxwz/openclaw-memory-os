@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>OpenClaw 记忆系统 · {{ titles.get(section, section) }}</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20width='64'%20height='64'%20rx='12'%20fill='%23161b22'/%3E%3Cpath%20d='M16%2020h32v6H16zm0%2010h32v6H16zm0%2010h22v6H16z'%20fill='%2358a6ff'/%3E%3Ccircle%20cx='46'%20cy='36'%20r='5'%20fill='%237ee787'/%3E%3C/svg%3E" />
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20180%20180'%3E%3Crect%20width='180'%20height='180'%20rx='32'%20fill='%23161b22'/%3E%3Cpath%20d='M44%2056h92v18H44zm0%2028h92v18H44zm0%2028h64v18H44z'%20fill='%2358a6ff'/%3E%3Ccircle%20cx='130'%20cy='101'%20r='14'%20fill='%237ee787'/%3E%3C/svg%3E" />
+<link rel="stylesheet" href="/static/css/dashboard.css" />
+<script src="/static/chart.umd.min.js" defer></script>
+<script src="/static/js/common.js" defer></script>
+<script src="/static/js/overview.js" defer></script>
+<script src="/static/js/tiers_duplicates.js" defer></script>
+<script src="/static/js/recall.js" defer></script>
+<script src="/static/js/governance.js" defer></script>
+<script src="/static/js/strategy.js" defer></script>
+<script src="/static/js/evaluation.js" defer></script>
+<script src="/static/js/memories.js" defer></script>
+<script src="/static/js/security.js" defer></script>
+<script src="/static/js/health.js" defer></script>
+<script src="/static/js/dashboard.js" defer></script>
+</head>
+<body>
+<header>
+  <h1>🐾 OpenClaw 记忆系统</h1>
+  <span class="meta">后端：<code>{{ backend }}</code></span>
+  <span class="health-pill">健康度 —</span>
+  <div class="spacer"></div>
+  <nav>
+    {% set sections_nav = [('overview','总览'), ('tiers','层级'), ('duplicates','重复'), ('recall','召回测试'), ('governance','自主治理'), ('strategy','检索策略'), ('evaluation','评估'), ('memories','记忆'), ('health','系统健康'), ('security','安全')] %}
+    {% for key, label in sections_nav %}
+      <a class="{{ 'active' if section == key else '' }}"
+         href="/dashboard/{{ key }}">{{ label }}</a>
+    {% endfor %}
+    <form method="post" action="/logout" style="display:inline; margin-left:1rem;">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+      <button type="submit" style="background:transparent;border:1px solid #30363d;color:#c9d1d9;padding:.35rem .8rem;border-radius:6px;cursor:pointer;font-size:.85rem;">退出</button>
+    </form>
+  </nav>
+</header>
+<main>
+
+{% if section == "overview" %}
+  <section id="overview" data-section="overview">
+    <div class="grid" id="maintenance-health"></div>
+    <div class="grid" id="stats"></div>
+    <div class="grid" id="autonomous-governance-cards">
+      <div class="card" data-governance-card="status">
+        <h2>Memory 自主治理 <span style="font-size:.75rem;color:#7ee787;font-weight:600;" data-governance="status-badge">autonomous-safe</span></h2>
+        <div class="stat">
+          <span data-governance="last-result">{{ autonomous_governance.last_result or "unknown" }}</span>
+          <small data-governance="meta">{{ autonomous_governance.schedule }} · {{ autonomous_governance.mode }} · {{ autonomous_governance.scope }}</small>
+        </div>
+        <div class="muted" style="margin-top:.55rem;font-size:.85rem;line-height:1.55;display:grid;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr));gap:.35rem .9rem;">
+          <div>上次运行：<strong data-governance="last-run">{{ autonomous_governance.last_run or "—" }}</strong></div>
+          <div>下次运行：<strong data-governance="next-run">{{ autonomous_governance.next_run or "—" }}</strong></div>
+          <div>运行结果：<strong data-governance="result">{{ autonomous_governance.last_result or "unknown" }}</strong></div>
+        </div>
+        <div class="muted" data-governance="summary" style="margin-top:.45rem;font-size:.78rem;line-height:1.4;">
+          {{ autonomous_governance.last_summary or "等待首次治理结果；仅 Memory 内容治理，不物理删除。" }}
+        </div>
+      </div>
+
+      <div class="card" data-strategy-card="status">
+        <h2>检索策略</h2>
+        <div class="stat"><span data-strategy="policy-version">{{ policy_version or "—" }}</span><small>policy version</small></div>
+        <div class="muted" style="margin-top:.55rem;font-size:.85rem;line-height:1.55;display:grid;grid-template-columns:repeat(auto-fit,minmax(8rem,1fr));gap:.35rem .9rem;">
+          <div>版本：<strong>{{ policy_version or "—" }}</strong></div>
+          <div>晋升次数(30d)：<strong>{{ promotion_count_30d or "—" }}</strong></div>
+          <div>连续回滚：<strong>{{ consecutive_rollbacks or "—" }}</strong></div>
+          <div>Shadow 对照：<strong>{{ shadow_comparisons or "—" }}</strong></div>
+        </div>
+        <div class="muted" style="margin-top:.45rem;font-size:.78rem;line-height:1.4;" data-strategy="note">
+          策略由 autonomous_governance.sh 自动优化；guarded_auto 模式。
+        </div>
+      </div>
+    </div>
+    <div class="controls" style="margin-top:1rem;display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;">
+      <button id="reclassifyBtn" style="padding:.4rem 1rem;border:1px solid #2ea043;background:#2ea04322;color:#7ee787;border-radius:4px;cursor:pointer;font-weight:600;">Reclassify All (Auto)</button>
+      <button id="reclassifyDryBtn" style="padding:.4rem 1rem;border:1px solid #1f6feb;background:#1f6feb22;color:#79c0ff;border-radius:4px;cursor:pointer;">Reclassify (Dry-Run)</button>
+      <span id="reclassifyStatus" class="muted">维护任务：全自动（maintenance.sh + tier_classifier.py）</span>
+    </div>
+    <div class="charts">
+      <div class="chart-card"><h2>层级分布</h2><div class="chart-wrap"><canvas id="tierChart"></canvas></div></div>
+      <div class="chart-card"><h2>状态分布</h2><div class="chart-wrap"><canvas id="statusChart"></canvas></div></div>
+      <div class="chart-card"><h2>Importance Distribution</h2><div class="chart-wrap"><canvas id="impChart"></canvas></div></div>
+    </div>
+  </section>
+
+{% elif section == "tiers" %}
+  <section id="tiers">
+    <h2>按层级</h2>
+    <p class="muted">内部 5 类 lifecycle tier ↔ OpenClaw Memory OS 4 层回收优先级映射。</p>
+    <div id="tierTable"></div>
+    <h2 style="margin-top:2rem">按状态</h2>
+    <div id="statusTable"></div>
+  </section>
+
+{% elif section == "duplicates" %}
+  <section id="duplicates">
+    <p class="muted">通过 Jaccard 相似度发现的近似重复簇。</p>
+    <div id="dupList"></div>
+  </section>
+
+{% elif section == "recall" %}
+  <section id="recall">
+    <div class="controls">
+      <input id="q" type="text" placeholder="输入要测试的查询..." style="flex:1; min-width: 14rem;" />
+      <select id="mode">
+        <option value="hybrid" selected>混合</option>
+        <option value="keyword">关键词</option>
+        <option value="dense">向量</option>
+      </select>
+      <input id="limit" type="number" value="10" min="1" max="50" style="width:5rem;" />
+      <label style="font-size:.85rem;color:#9da7b3"><input type="checkbox" id="incSup" /> 包含已取代</label>
+      <label style="font-size:.85rem;color:#9da7b3"><input type="checkbox" id="incExp" /> 包含已过期</label>
+      <button id="runBtn">运行召回</button>
+    </div>
+    <div id="recallMeta" class="muted" style="margin-bottom: .8rem;"></div>
+    <div id="recallHits"></div>
+  </section>
+
+{% elif section == "governance" %}
+  <section id="governance">
+    <h2>Memory 自主治理</h2>
+    <div class="policy" style="background:#1f6feb22;border-color:#2f81f7;color:#79c0ff;">
+      🤖 <strong>全自动。</strong> Maintenance + autonomous_governance.sh 负责记忆内容治理（supersede / expire / dedup）。不碰 repo / system / config / secrets。Memory OS 永不执行物理删除。
+    </div>
+    <div class="grid">
+      <div class="card">
+        <h2>治理状态</h2>
+        <div class="stat" style="font-size:1.1rem;">
+          <span data-governance="last-result">{{ autonomous_governance.last_result or "unknown" }}</span>
+        </div>
+        <div class="muted" style="margin-top:.5rem;">
+          <div>上次：<strong>{{ autonomous_governance.last_run or "—" }}</strong></div>
+          <div>下次：<strong>{{ autonomous_governance.next_run or "—" }}</strong></div>
+        </div>
+      </div>
+      <div class="card">
+        <h2>清理候选 (review-only)</h2>
+        <div class="stat" style="font-size:1.1rem;">{{ h.deletion_candidate_count if h else "—" }}</div>
+        <small>低价值临时记忆 · <strong style="color:#7ee787;">仅审核，不会执行物理删除</strong></small>
+      </div>
+    </div>
+    <div class="controls" data-governance-actions style="margin-top:1rem;">
+      <button id="markAllDel" data-governance-action="mark-all"
+              style="border-color:#7ee787;background:#2ea04322;color:#7ee787;"
+              title="标记：仅供 review 记录；OS 永不执行物理删除。">✓ 全部标记为已审核 (review-only)</button>
+      <span id="delStatus" class="muted" data-governance-status style="margin-left:.8rem;"></span>
+    </div>
+    <p class="muted" style="margin-top:.5rem;">已自动过滤核心/长期/高重要性/7天内新建的记忆。本控制台<strong>不</strong>直接调用删除 API。</p>
+    <div id="delList" data-governance-list></div>
+  </section>
+
+{% elif section == "strategy" %}
+  <section id="strategy">
+    <h2>检索策略</h2>
+    <p class="muted">Policy version {{ policy_version or "v1" }} · 由 evolution.py 自动优化。</p>
+    <div class="grid">
+      <div class="card"><h2>版本</h2><div class="stat">{{ policy_version or "v1" }}</div></div>
+      <div class="card"><h2>30d 晋升</h2><div class="stat">{{ promotion_count_30d or "0" }}</div></div>
+      <div class="card"><h2>回滚</h2><div class="stat">{{ consecutive_rollbacks or "0" }}</div></div>
+      <div class="card"><h2>Shadow</h2><div class="stat">{{ shadow_comparisons or "0" }}</div></div>
+    </div>
+    <p class="muted">
+      策略自动优化周期：每周二 04:01 Asia/Shanghai · guarded_auto 模式。<br />
+      每 30 天最多 2 次自动晋升，2 次连续回滚触发熔断。
+    </p>
+    <h2 style="margin-top:1.5rem;">策略状态 (live)</h2>
+    <div id="strategy-state" data-strategy-state>
+      <div class="empty">读取中…</div>
+    </div>
+    <div class="policy" data-strategy-actions-wrap style="background:#d2992233;border-color:#d2992255;color:#ffdf5d;">
+      ⚠️ <strong>人工介入：</strong>暂停/恢复/拒绝候选/回滚到 baseline。guarded_auto 模式只在熔断外允许自动晋升。
+    </div>
+    <div id="strategy-actions" data-strategy-actions class="controls"></div>
+  </section>
+
+{% elif section == "evaluation" %}
+  <section id="evaluation" data-section="evaluation">
+    <h2>反馈评估</h2>
+    <p class="muted">召回反馈 (👍 / 👎) 的滚动聚合，用于 evolution.py 进行策略权衡。</p>
+    <div id="evaluation-feedback" class="grid" data-evaluation-block="feedback">读取中…</div>
+
+    <h2 style="margin-top:1.5rem;">离线评估指标</h2>
+    <div id="evaluation-metrics" data-evaluation-block="metrics">读取中…</div>
+
+    <h2 style="margin-top:1.5rem;">回放历史</h2>
+    <div id="evaluation-history" data-evaluation-block="history">读取中…</div>
+
+    <p class="muted" id="evaluation-note" data-evaluation-note style="margin-top:.8rem;"></p>
+  </section>
+
+{% elif section == "memories" %}
+  <section id="memories" data-section="memories">
+    <h2>记忆浏览</h2>
+    <p class="muted">Memory OS 的记忆视图。<strong style="color:#7ee787;">只读。</strong>本控制台<strong>不</strong>触发任何物理删除。</p>
+    <div id="memories-meta" data-memories-meta>读取中…</div>
+    <div id="memories-list" data-memories-list>读取中…</div>
+  </section>
+
+{% elif section == "health" %}
+  <section id="health" data-section="health">
+    <h2>系统健康</h2>
+    <div class="grid" id="health-status">
+      <div class="card"><h2>Qdrant</h2><div class="stat status-ok" data-health="qdrant">—</div></div>
+      <div class="card"><h2>Ollama</h2><div class="stat" data-health="ollama">—</div></div>
+      <div class="card"><h2>Lexical Index</h2><div class="stat" data-health="lexical">—</div></div>
+      <div class="card"><h2>Policy DB</h2><div class="stat" data-health="policy">—</div></div>
+      <div class="card"><h2>SQLite Feedback</h2><div class="stat" data-health="feedback">—</div></div>
+      <div class="card"><h2>Memory OS</h2><div class="stat" data-health="memoryos">—</div></div>
+    </div>
+  </section>
+
+{% elif section == "security" %}
+  <section id="security" data-section="security">
+    <h2>安全设置</h2>
+    <div class="grid" id="security-cards">
+      <div class="card">
+        <h2>Auth 状态</h2>
+        <div class="stat status-ok">已启用</div>
+        <small>Password + TOTP · 共享 Token</small>
+      </div>
+      <div class="card">
+        <h2>CSRF</h2>
+        <div class="stat status-ok">已启用</div>
+        <small>csrf_token cookie + X-CSRF-Token</small>
+      </div>
+      <div class="card">
+        <h2>Session</h2>
+        <div class="stat">3 天</div>
+        <small>HttpOnly · Secure · SameSite=Strict</small>
+      </div>
+    </div>
+    <div class="card" style="margin-top:1rem;">
+      <h2>Session 管理</h2>
+      <p class="muted">当前已登录。点击退出将清除 session cookie 并撤销当前会话。</p>
+      <form method="post" action="/logout">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+        <button type="submit" style="padding:.5rem 1.5rem;border-radius:6px;border:1px solid #f85149;background:#f8514922;color:#ff7b72;cursor:pointer;font-weight:600;">退出登录</button>
+      </form>
+    </div>
+    <div class="card" style="margin-top:1rem;">
+      <h2>活跃 Session</h2>
+      <p class="muted">以下是从服务端 <code>/api/security/sessions</code> 读取的非敏感元数据。</p>
+      <div id="security-sessions" data-security-block="sessions">读取中…</div>
+    </div>
+    <div class="card" style="margin-top:1rem;">
+      <h2>最近安全事件</h2>
+      <div id="security-events" data-security-block="events">读取中…</div>
+    </div>
+    <div class="card" style="margin-top:1rem;">
+      <h2>会话联动</h2>
+      <p class="muted">撤销全部<strong>其他</strong>活跃会话（当前会话保留），需 CSRF。</p>
+      <button id="revokeAllBtn" data-security-action="revoke-all"
+              style="padding:.5rem 1.2rem;border-radius:6px;border:1px solid #f85149;background:#f8514922;color:#ff7b72;cursor:pointer;font-weight:600;">撤销全部其他会话</button>
+      <span id="revokeAllStatus" class="muted" style="margin-left:.8rem;"></span>
+    </div>
+  </section>
+{% endif %}
+
+</main>
+<script>window.__SECTION__ = "{{ section }}";</script>
+</body>
+</html>

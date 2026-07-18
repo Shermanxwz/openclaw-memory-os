@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+*.egg
+.eggs/
+
+# Virtualenvs
+.venv/
+venv/
+env/
+
+# Test / coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+
+# Logs
+*.log
+
+# Local env files (the example is checked in; real ones are not)
+.env
+.env.local
+
+# OS-level artefacts that should not be published
+memory_os.local.json
+qdrant_local.json
+
+# Personal taxonomy (operator-specific brand / keyword lists). The real
+# config file is gitignored; the *.example.json template is checked in so
+# fork operators can see the schema without leaking their own taxonomy.
+config/personal_taxonomy.json
+config/personal_taxonomy.local.json

@@ -1,0 +1,31 @@
+[Unit]
+Description=OpenClaw Memory OS weekly autonomous governance
+After=network-online.target openclaw-memory-os.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=openclaw-memory-os
+Group=openclaw-memory-os
+WorkingDirectory=/opt/openclaw-memory-os
+EnvironmentFile=/opt/openclaw-memory-os/.env
+Environment=HOME=/var/lib/openclaw-memory-os
+Environment=XDG_STATE_HOME=/var/lib/openclaw-memory-os/state
+Environment=XDG_CACHE_HOME=/var/cache/openclaw-memory-os
+Environment=BACKUP_DIR=/var/lib/openclaw-memory-os/snapshots
+Environment=LOG_FILE=/var/log/openclaw-memory-os/governance.log
+Environment=STATUS_FILE_PATH=/var/lib/openclaw-memory-os/state/openclaw-memory-os/autonomous-governance.json
+ExecStart=/opt/openclaw-memory-os/scripts/autonomous_governance.sh
+UMask=0077
+StateDirectory=openclaw-memory-os
+StateDirectoryMode=0700
+CacheDirectory=openclaw-memory-os
+CacheDirectoryMode=0700
+LogsDirectory=openclaw-memory-os
+LogsDirectoryMode=0700
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+NoNewPrivileges=yes
+ReadWritePaths=/var/lib/openclaw-memory-os /var/cache/openclaw-memory-os /var/log/openclaw-memory-os

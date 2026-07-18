@@ -1,0 +1,43 @@
+{
+  "id": "openclaw-memory-os",
+  "name": "OpenClaw Memory OS Adapter",
+  "description": "Exclusive memory plugin that searches OpenClaw Memory OS first and falls back to OpenClaw built-in memory search.",
+  "version": "0.1.0",
+  "kind": "memory",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "baseUrl": {
+        "type": "string",
+        "default": "http://127.0.0.1:7788"
+      },
+      "token": {
+        "type": "string"
+      },
+      "timeoutMs": {
+        "type": "integer",
+        "minimum": 100,
+        "default": 2500
+      },
+      "fallback": {
+        "type": "boolean",
+        "default": true
+      },
+      "preferMemoryOsWhenEmpty": {
+        "type": "boolean",
+        "default": false
+      }
+    }
+  },
+  "uiHints": {
+    "token": {
+      "label": "Memory OS token",
+      "sensitive": true
+    },
+    "baseUrl": {
+      "label": "Memory OS base URL",
+      "placeholder": "http://127.0.0.1:7788"
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": "openclaw-memory-os-adapter",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "OpenClaw memory plugin adapter that queries OpenClaw Memory OS before falling back to built-in memory search.",
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  },
+  "peerDependencies": {
+    "openclaw": "*"
+  }
+}
