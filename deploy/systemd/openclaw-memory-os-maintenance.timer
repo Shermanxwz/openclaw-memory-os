@@ -1,0 +1,10 @@
+[Unit]
+Description=Run OpenClaw Memory OS maintenance daily
+
+[Timer]
+OnCalendar=*-*-* 07:45:00 Asia/Shanghai
+Persistent=true
+Unit=openclaw-memory-os-maintenance.service
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,12 @@
+/var/log/openclaw-memory-os/maintenance.log
+/var/log/openclaw-memory-os/governance.log
+{
+    daily
+    rotate 14
+    compress
+    delaycompress
+    missingok
+    notifempty
+    create 0600 openclaw-memory-os openclaw-memory-os
+    su openclaw-memory-os openclaw-memory-os
+}

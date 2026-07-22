@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>OpenClaw 记忆系统 · 登录</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20width='64'%20height='64'%20rx='12'%20fill='%23161b22'/%3E%3Cpath%20d='M16%2020h32v6H16zm0%2010h32v6H16zm0%2010h22v6H16z'%20fill='%2358a6ff'/%3E%3Ccircle%20cx='46'%20cy='36'%20r='5'%20fill='%237ee787'/%3E%3C/svg%3E" />
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20180%20180'%3E%3Crect%20width='180'%20height='180'%20rx='32'%20fill='%23161b22'/%3E%3Cpath%20d='M44%2056h92v18H44zm0%2028h92v18H44zm0%2028h64v18H44z'%20fill='%2358a6ff'/%3E%3Ccircle%20cx='130'%20cy='101'%20r='14'%20fill='%237ee787'/%3E%3C/svg%3E" />
+<style>
+  :root { color-scheme: light dark; }
+  body { font-family: system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", "Segoe UI", Roboto, sans-serif;
+         margin: 0; padding: 2rem; background: #0e1116; color: #e6edf3;
+         display: flex; min-height: 100vh; align-items: center; justify-content: center; }
+  .card { max-width: 28rem; width: 100%; padding: 2rem; border-radius: 12px;
+          background: #161b22; border: 1px solid #30363d; box-shadow: 0 6px 24px rgba(0,0,0,.35); }
+  h1 { margin-top: 0; font-size: 1.4rem; }
+  label { display:block; margin-top: 1rem; font-size: 0.85rem; color:#9da7b3; }
+  input[type=password], input[type=text] { width: 100%; padding: .6rem .8rem; margin-top: .3rem;
+                         border-radius: 6px; border: 1px solid #30363d;
+                         background: #0d1117; color: #e6edf3; font-size: 1rem; }
+  button { margin-top: 1.5rem; width: 100%; padding: .7rem; border-radius: 6px;
+           border: 1px solid #2f81f7; background: #2f81f7; color: white; font-weight: 600;
+           cursor: pointer; font-size: 1rem; }
+  button:hover { filter: brightness(1.1); }
+  .error { color: #ff7b72; margin-top: 1rem; font-size: 0.9rem; }
+  .muted { color: #9da7b3; font-size: 0.85rem; margin-top: 1rem; }
+  code { background: #0d1117; padding: 1px 6px; border-radius: 4px; border: 1px solid #30363d; }
+</style>
+</head>
+<body>
+  <main class="card">
+    <h1>OpenClaw 记忆系统</h1>
+    <p class="muted">请输入密码与验证码（如已配置 TOTP）。</p>
+    <form method="post" action="/login">
+      <input type="hidden" name="next" value="{{ next or '/dashboard/overview' }}" />
+      {% if csrf_token %}
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+      {% endif %}
+      <label for="password">密码</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" autofocus required />
+      <label for="totp_code">TOTP 验证码（6 位数字）</label>
+      <input id="totp_code" name="totp_code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" minlength="6" maxlength="6" />
+      <button type="submit">登录</button>
+    </form>
+    {% if error %}
+      <p class="error">{{ error }}</p>
+    {% endif %}
+    {% if not auth_enabled %}
+      <p class="muted">当前实例 <strong>未启用</strong> 登录（没有设置 <code>MEMORY_OS_TOKEN</code> 或 <code>MEMORY_OS_PASSWORD</code>）。
+         <a href="/dashboard/overview" style="color:#58a6ff">直接进入看板</a>。</p>
+    {% endif %}
+  </main>
+</body>
+</html>

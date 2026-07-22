@@ -1,0 +1,64 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://openclawmemoryos.example.com/schemas/recall.schema.json",
+  "title": "OpenClaw Memory OS · Recall Response",
+  "description": "Shape of the JSON returned by POST /api/recall-test. Mirrors openclaw_memory_os.models.RecallResponse.",
+  "type": "object",
+  "required": ["query", "mode", "took_ms", "backend", "total_considered", "hits"],
+  "additionalProperties": false,
+  "properties": {
+    "query": { "type": "string" },
+    "mode": { "type": "string", "enum": ["hybrid", "keyword", "dense"] },
+    "took_ms": { "type": "number", "minimum": 0 },
+    "backend": { "type": "string" },
+    "total_considered": { "type": "integer", "minimum": 0 },
+    "query_id": { "type": "string", "description": "UUID for structured feedback/evaluation linkage." },
+    "policy_version": { "type": "string", "description": "Active retrieval policy version." },
+    "diagnostics": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "status": { "type": "string" },
+        "degraded_reason": { "type": ["string", "null"] },
+        "dense_available": { "type": "boolean" },
+        "lexical_available": { "type": "boolean" },
+        "collections_searched": { "type": "array", "items": { "type": "string" } },
+        "candidate_count": { "type": "integer", "minimum": 0 },
+        "embedding_ms": { "type": "number", "minimum": 0 },
+        "lexical_ms": { "type": "number", "minimum": 0 },
+        "ranking_ms": { "type": "number", "minimum": 0 }
+      }
+    },
+    "fallback": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "min_results": { "type": "integer", "minimum": 0 },
+        "used": { "type": "boolean" },
+        "added": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "hits": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "text", "tier", "status", "importance", "score", "components", "explanation"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string" },
+          "collection": { "type": "string" },
+          "candidate_key": { "type": "string", "description": "Canonical collection:memory_id key." },
+          "text": { "type": "string" },
+          "summary": { "type": ["string", "null"] },
+          "tier": { "type": "string", "enum": ["core", "long", "medium", "short", "working"] },
+          "status": { "type": "string", "enum": ["active", "superseded", "expired", "needs_review"] },
+          "importance": { "type": "number", "minimum": 0, "maximum": 1 },
+          "score": { "type": "number" },
+          "components": { "type": "object", "additionalProperties": { "type": "number" } },
+          "explanation": { "type": "string" }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "_comment": [
+    "OpenClaw Memory OS personal taxonomy — PUBLIC PLACEHOLDER TEMPLATE.",
+    "This file ships with the public repo so fork operators understand the",
+    "shape. It MUST NOT contain real brand names, store fronts, account",
+    "handles, or any other operator-specific data.",
+    "",
+    "To use it: copy this file to ../personal_taxonomy.json (the real",
+    "config path), edit the placeholder entries (brand_a / brand_b /",
+    "brand_c) to your real values, and the loader at",
+    "openclaw_memory_os/personal_taxonomy.py will pick it up at runtime.",
+    "",
+    "Override the location by setting the MEMORY_OS_TAXONOMY_PATH env",
+    "var to the absolute path of your personal copy. The base path",
+    "config/personal_taxonomy.json is gitignored so the real taxonomy",
+    "never gets committed.",
+    "",
+    "Keys are tier / topic names. Any leading-underscore key (such as",
+    "this _comment) is metadata and is ignored by the loader. Values may",
+    "be either a list of strings or a list of {\"keyword\": \"...\"} dicts.",
+    "Empty arrays disable the rule."
+  ],
+  "core": [
+    "core_keyword_a",
+    "core_keyword_b",
+    "core_keyword_c"
+  ],
+  "long": [
+    "## 教训",
+    "教训库",
+    "重要教训"
+  ],
+  "amazon": [
+    "amazon_topic_keyword",
+    "Amazon",
+    "amazon_ops_keyword",
+    "brand_a",
+    "brand_b",
+    "brand_c",
+    "amazon_practice_keyword"
+  ],
+  "personal": [],
+  "finance": [],
+  "notes": []
+}

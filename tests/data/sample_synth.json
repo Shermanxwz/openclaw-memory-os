@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "description": "Tiny 3-doc sample used by the Wave 5 synth feedback loop. Each memory is keyed to a unique query keyword so the BM25 lexical path returns a deterministic top-1 candidate per query. The corpus is fictional, public-domain safe, and intentionally small to keep the test fast.",
+  "memories": [
+    {
+      "id": "syn-mem-001",
+      "text": "Gorilla protocol deployment uses rolling restarts behind a load balancer to keep request latency below 200 milliseconds.",
+      "summary": "Gorilla protocol deployment note.",
+      "tier": "long",
+      "status": "active",
+      "importance": 0.85,
+      "tags": ["gorilla", "deploy", "latency"],
+      "source": "tests/data/sample_synth.json",
+      "created_at": "2026-01-04T09:00:00Z",
+      "updated_at": "2026-01-04T09:00:00Z"
+    },
+    {
+      "id": "syn-mem-002",
+      "text": "Lemur memory consolidation merges near-duplicate memories older than thirty days into a single canonical record.",
+      "summary": "Lemur consolidation rule.",
+      "tier": "long",
+      "status": "active",
+      "importance": 0.75,
+      "tags": ["lemur", "consolidation", "dedup"],
+      "source": "tests/data/sample_synth.json",
+      "created_at": "2026-01-05T10:00:00Z",
+      "updated_at": "2026-01-05T10:00:00Z"
+    },
+    {
+      "id": "syn-mem-003",
+      "text": "Otter observability stack exports per-query latency histograms to a Prometheus scrape endpoint every fifteen seconds.",
+      "summary": "Otter observability note.",
+      "tier": "long",
+      "status": "active",
+      "importance": 0.7,
+      "tags": ["otter", "observability", "prometheus"],
+      "source": "tests/data/sample_synth.json",
+      "created_at": "2026-01-06T11:00:00Z",
+      "updated_at": "2026-01-06T11:00:00Z"
+    }
+  ]
+}

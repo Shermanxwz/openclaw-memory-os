@@ -1,0 +1,10 @@
+[Unit]
+Description=Run OpenClaw Memory OS governance every Tuesday
+
+[Timer]
+OnCalendar=Tue *-*-* 04:01:00 Asia/Shanghai
+Persistent=true
+Unit=openclaw-memory-os-governance.service
+
+[Install]
+WantedBy=timers.target

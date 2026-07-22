@@ -1,0 +1,76 @@
+# systemd unit: openclaw-memory-os
+# The deploy script substitutes /opt/openclaw-memory-os when installed from
+# another absolute project path.
+
+[Unit]
+Description=OpenClaw Memory OS (FastAPI/uvicorn)
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=openclaw-memory-os
+Group=openclaw-memory-os
+WorkingDirectory=/opt/openclaw-memory-os
+EnvironmentFile=/opt/openclaw-memory-os/.env
+Environment=HOME=/var/lib/openclaw-memory-os
+Environment=XDG_STATE_HOME=/var/lib/openclaw-memory-os/state
+Environment=XDG_CACHE_HOME=/var/cache/openclaw-memory-os
+Environment=OPENCLAW_MEMORY_OS_AUDIT_PATH=/var/lib/openclaw-memory-os/audit/audit_log.sqlite
+Environment=OPENCLAW_MEMORY_OS_LOG=/var/log/openclaw-memory-os/maintenance.log
+Environment=OPENCLAW_MEMORY_OS_SUMMARY=/var/lib/openclaw-memory-os/state/openclaw-memory-os/maintenance-summary.json
+Environment=MEMORY_OS_GOVERNANCE_STATUS=/var/lib/openclaw-memory-os/state/openclaw-memory-os/autonomous-governance.json
+Environment=PYTHONUNBUFFERED=1
+UMask=0077
+Environment=PYTHONDONTWRITEBYTECODE=1
+
+ExecStart=/opt/openclaw-memory-os/.venv/bin/uvicorn \
+    openclaw_memory_os.app:app \
+    --host 127.0.0.1 \
+    --port 7788 \
+    --workers 1 \
+    --no-access-log
+
+SuccessExitStatus=0
+KillSignal=SIGTERM
+TimeoutStopSec=20
+TimeoutStartSec=30
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=openclaw-memory-os
+
+# systemd creates these owner-private paths before starting the service.
+StateDirectory=openclaw-memory-os
+StateDirectoryMode=0700
+CacheDirectory=openclaw-memory-os
+CacheDirectoryMode=0700
+LogsDirectory=openclaw-memory-os
+LogsDirectoryMode=0700
+
+# Filesystem and process isolation. The application code and venv are read-only;
+# mutable policy/session/recall/audit state lives under StateDirectory.
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+NoNewPrivileges=yes
+CapabilityBoundingSet=
+AmbientCapabilities=
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+RestrictNamespaces=yes
+SystemCallArchitectures=native
+ReadWritePaths=/var/lib/openclaw-memory-os /var/cache/openclaw-memory-os /var/log/openclaw-memory-os
+MemoryHigh=1G
+MemoryMax=2G
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,72 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://openclawmemoryos.example.com/schemas/memory.schema.json",
+  "title": "OpenClaw Memory OS · Memory",
+  "description": "Canonical JSON-Schema for a single memory entry. Mirrors openclaw_memory_os.models.Memory.",
+  "type": "object",
+  "required": ["id", "text", "tier", "status", "importance", "created_at"],
+  "additionalProperties": true,
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Opaque memory identifier."
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Human-readable memory content."
+    },
+    "summary": {
+      "type": ["string", "null"],
+      "description": "Optional short summary."
+    },
+    "tier": {
+      "type": "string",
+      "enum": ["core", "long", "medium", "short", "working"],
+      "description": "Tier classification: core / long / medium / short / working."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["active", "superseded", "expired", "needs_review"],
+      "description": "Lifecycle status."
+    },
+    "importance": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Importance score, 0.0 .. 1.0."
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "source": {
+      "type": ["string", "null"],
+      "description": "Free-form source label."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": ["string", "null"],
+      "format": "date-time"
+    },
+    "expires_at": {
+      "type": ["string", "null"],
+      "format": "date-time"
+    },
+    "supersedes": {
+      "type": ["string", "null"],
+      "description": "ID of memory this one replaces."
+    },
+    "superseded_by": {
+      "type": ["string", "null"],
+      "description": "ID of memory that replaces this one."
+    },
+    "review_reason": {
+      "type": ["string", "null"]
+    }
+  }
+}
